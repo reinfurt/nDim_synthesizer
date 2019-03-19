@@ -121,7 +121,7 @@ int trail[] = {
 float sin, cos;
 float angle;
 int a = 0, b = 0;
-boolean inMotion = true;
+boolean inMotion = false;
 char thisKey;   // used to keep track of keypresses
 float textCoords[]; // string to keep track of what has been drawn and what has not, each member is xy
 // float[] proportions = {0.5,1.0,0.25,0.5};
@@ -244,9 +244,6 @@ protected void calcTransform() {
   }
 }
 
-
-// static final float WIG = 1f;
-
 void setAngle(float newAngle) {
   angle = newAngle;
   sin = (float) Math.sin(angle);
@@ -270,97 +267,83 @@ if ((x1 > width) || (x2 > width) ||
   line(x1, y1, x2, y2);
 }
 
+
+/* draw */
+
 void draw() {
 
-  // output PDF frames
-
-  if (outputPDF) {
-    beginRecord(PDF, "out/pdf/" + pdfFilename + "-####.pdf");
-  }
-
-  if (inMotion) {
-
-    // change rotation after a while 
-    // if ((a == b) || (Math.random() < 0.05) || (changeRotation)) {
-    // change rotation only if requested
-    if ((a == b) || (changeRotation)) {
-      a = (int) (Math.random() * 4.0);
-      b = 0;
-      do {
-        b = (int) (Math.random() * 4.0);
-      } 
-      while (a == b);
-      changeRotation = false;
+    // output PDF frames
+    if (outputPDF) {
+        beginRecord(PDF, "out/pdf/" + pdfFilename + "-####.pdf");
     }
-    rotate(a, b);
-  }
+
+    if (inMotion) {
+        // change rotation after a while 
+        // if ((a == b) || (Math.random() < 0.05) || (changeRotation)) {
+        // change rotation only if requested
+        if ((a == b) || (changeRotation)) {
+            a = (int) (Math.random() * 4.0);
+            b = 0;
+            do {
+                b = (int) (Math.random() * 4.0);
+            } 
+            while (a == b);
+            changeRotation = false;
+        }
+        rotate(a, b);
+    } else {
+        rotate(0, 0);
+    }
 
     background(0);
     calcTransform();
 
     int index = 0;
+    for (int i = 0; i < 64; i += 2) {
+        if (showText) {
+            boolean drawThis = true;
+            // check to see if drawn before
+            for ( int j = 0; j < textCoords.length; j ++) {
+                if (textCoords[j] == fcornx[i] + fcorny[i]) {
+                    drawThis = false;
+                }
+            }
+            textCoords[i] = fcornx[i] + fcorny[i];
+            if (drawThis) {
+                textFont(display, 12);
+                String textStub;            
+                textStub = labels[index];
+                if (show_binary_labels) {
+                    textStub = labels_binary[index];
+                } else if (show_coordinate_labels) {
+                    textStub = labels_coordinate[index];
+                } 
+                text(textStub, TX(fcornx[i]), TY(fcorny[i]));
+                index++;
+            }
+        } 
 
-  // for (int i = 0; i < (showText ? cornCount : 64); i += 2) {
-  for (int i = 0; i < 64; i += 2) {
-    if (showText) {
-
-      boolean drawThis = true;
-
-      // check to see if drawn before
-      for ( int j = 0; j < textCoords.length; j ++) {
-        if (textCoords[j] == fcornx[i] + fcorny[i]) {
-          drawThis = false;
+        if (showLines) {
+            // stroke(i < 64 ? 128 : 255);
+            // stroke value depends on 3d Z position
+            if (shadeLines) {
+                stroke(128 + (rawz[i] * 512));
+            } else {
+                stroke(thisStroke);
+            }
+            LINE(TX(fcornx[i]), TY(fcorny[i]), TX(fcornx[i+1]), TY(fcorny[i+1]));
         }
-      }
-
-      textCoords[i] = fcornx[i] + fcorny[i];
-
-    // make an array of point names rather than relying on i
-
-      if (drawThis) {
-        // textFont(font[i], (48 + rawz[i] * 100)); 
-        textFont(display, 12);
-        // fill(128 + (rawz[i] * 512));
-        // String textStub = "M";
-        // String textStub = str(i/2);
-        // String textStub = labels[index];
-            
-        String textStub;            
-        textStub = labels[index];
-        if (show_binary_labels) {
-            textStub = labels_binary[index];
-        } 
-        if (show_coordinate_labels) {
-            textStub = labels_coordinate[index];
-        } 
-        text(textStub, TX(fcornx[i]), TY(fcorny[i]));
-        index++;
-      }
-    } 
-
-    if (showLines) {
-      // stroke(i < 64 ? 128 : 255);
-      // stroke value depends on 3d Z position
-      if (shadeLines) {
-        stroke(128 + (rawz[i] * 512));
-      } 
-      else {
-        stroke(thisStroke);
-      }
-      LINE(TX(fcornx[i]), TY(fcorny[i]), TX(fcornx[i+1]), TY(fcorny[i+1]));
     }
-  }
 
-  // stop PDF output
-  if (outputPDF) {
-    endRecord();
-  }
+    if (outputPDF) {
+        endRecord();
+    }
 
-  if (debug) {
-    textFont(display, 12);
-    String thisDisplay = "a = " + a + "\nb = " + b + "\n< = " + angle;
-    text(thisDisplay, 20, 20);  // number in font[]
-  }
+    if (debug) {
+        textFont(display, 12);        
+        String thisDisplay = "a = " + a + "\nb = " + b + "\n< = " + angle;
+        text(thisDisplay, 20, 20);  // number in font[]
+    }
 }
 
 void exitClean() {
@@ -369,7 +352,6 @@ void exitClean() {
   }
   exit();
 }
-
 
 void keyPressed() {
   switch (key) {
