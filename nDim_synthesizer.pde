@@ -1,5 +1,8 @@
 /**
- * four dimensional goodness - ben fry
+ *
+ * O-R-G
+ * 
+ * based on: four dimensional goodness - ben fry
  * originally completed sometime in december of 2000,
  * updated for processing in february 2005
  *
