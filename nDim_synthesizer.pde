@@ -38,7 +38,7 @@
  * the integrator is my simple spring-based integrator class.
  */
 
-import processing.pdf.*;    // comment if not exporting PDF for performance
+// import processing.pdf.*;    // comment if not exporting PDF for performance
 
 boolean debug = false; 
 boolean outputPDF = false; // using PDF library, write a sequence of pdf files
@@ -275,10 +275,12 @@ if ((x1 > width) || (x2 > width) ||
 
 void draw() {
 
+    /*
     // output PDF frames
     if (outputPDF) {
         beginRecord(PDF, "out/pdf/" + pdfFilename + "-####.pdf");
     }
+    */
 
     if (inMotion) {
         // change rotation after a while 
@@ -338,9 +340,11 @@ void draw() {
         }
     }
 
+    /*
     if (outputPDF) {
         endRecord();
     }
+    */
 
     if (debug) {
         textFont(display, 12);        
