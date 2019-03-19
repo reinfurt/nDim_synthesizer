@@ -124,8 +124,8 @@ int a = 0, b = 0;
 boolean inMotion = true;
 char thisKey;   // used to keep track of keypresses
 float textCoords[]; // string to keep track of what has been drawn and what has not, each member is xy
-
-
+// float[] proportions = {0.5,1.0,0.25,0.5};
+float[] proportions = {1,1,1,1};
 
 void setup() {
    
@@ -136,16 +136,16 @@ void setup() {
   String fontStub = "resources/Monaco.ttf"; // from sketch /data
   display = createFont(fontStub, 140, false);
 
-  setAngle(0.05);   // [0.08] rotate speed
+  setAngle(0.05);   // [0.08] rotate speed    
+    adjust_proportions(proportions);    // doesnt yield useful result
 
   for (int i = 1; i < trail.length; i++) {
     addPoint(seedCorn[trail[i-1]], seedCorn[trail[i]]);
   }
 
   setAngle(angle - .036);     // slowdown default value of sin / cos for rotation speed
-  textCoords = new float[64];  // length is based on the draw loop (number of vertices)
+  textCoords = new float[64];  // length is based on the draw loop (number of vertices)    
 }
-
 
 protected void addPoint(float one[], float two[]) {
   corn[cornCount] = new float[4];
@@ -154,6 +154,15 @@ protected void addPoint(float one[], float two[]) {
   corn[cornCount] = new float[4];
   System.arraycopy(two, 0, corn[cornCount], 0, 4);
   cornCount++;
+}
+
+protected void adjust_proportions(float[] adjust) {
+  for (int i = 0; i < 4; i++) {
+    for (int j = 0; j < 4; j++) {
+     seedCorn[i][j] *= adjust[j];
+     // println(seedCorn[i][j]);
+    }
+  }
 }
 
 // rotates in 1 and 3
@@ -193,7 +202,6 @@ protected void rotate(int a, int b) {
   for (int i = 0; i < 4; i++) {
     rotation[i][i] = 1;
   }
-  // setAngle(noise(frameCount) * 0.08);
 
   rotation[a][a] =  cos;
   rotation[b][a] = -sin;
@@ -262,7 +270,6 @@ if ((x1 > width) || (x2 > width) ||
   line(x1, y1, x2, y2);
 }
 
-
 void draw() {
 
   // output PDF frames
@@ -275,7 +282,6 @@ void draw() {
 
     // change rotation after a while 
     // if ((a == b) || (Math.random() < 0.05) || (changeRotation)) {
-
     // change rotation only if requested
     if ((a == b) || (changeRotation)) {
       a = (int) (Math.random() * 4.0);
@@ -392,14 +398,14 @@ void keyPressed() {
         show_binary_labels = false;
         show_coordinate_labels = !show_coordinate_labels; 
         break;
-
-      case '1': 
+    
+      case 'x': 
         rotate(1, 0); 
         break;  // '1' x and u axes
-      case '2': 
+      case 'y': 
         rotate(2, 0); 
         break;  // '2' y and u axes
-      case '3': 
+      case 'z': 
         rotate(3, 0); 
         break;  // '3' z and u axes
     
